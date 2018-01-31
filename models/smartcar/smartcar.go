@@ -1,4 +1,4 @@
-package models
+package smartcar
 
 type Door struct {
   Location string `json:"location"`

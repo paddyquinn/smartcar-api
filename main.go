@@ -12,10 +12,12 @@ func main() {
 
   vehicles := router.Group("/vehicles/:id")
   {
-    vehicles.GET("/", hdlr.GetVehicle)
+    vehicles.GET("", hdlr.GetVehicle)
     vehicles.GET("/doors", hdlr.GetDoorSecurity)
     vehicles.GET("/fuel", hdlr.GetFuelRange)
     vehicles.GET("/battery", hdlr.GetBatteryRange)
     vehicles.POST("/engine", hdlr.PushEngineButton)
   }
+
+  router.Run()
 }

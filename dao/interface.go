@@ -1,11 +1,11 @@
 package dao
 
-import "github.com/paddyquinn/smartcar-api/models"
+import "github.com/paddyquinn/smartcar-api/models/smartcar"
 
 type Interface interface {
-  GetBatteryRange(id int) *models.Range
-  GetDoorSecurity(id int) *models.Doors
-  GetFuelRange(id int) *models.Range
-  GetVehicle(id int) *models.Vehicle
-  PushEngineButton(id int) *models.Status
+  GetBatteryRange(id string) (*smartcar.Range, error)
+  GetDoorSecurity(id string) (*smartcar.Doors, error)
+  GetFuelRange(id string) (*smartcar.Range, error)
+  GetVehicle(id string) (*smartcar.Vehicle, error)
+  PushEngineButton(id string) (*smartcar.Status, error)
 }
