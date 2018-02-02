@@ -6,19 +6,18 @@ import (
 	"fmt"
 	"net/http"
 
-	"errors"
+	"github.com/paddyquinn/smartcar-api/errors"
 	"github.com/paddyquinn/smartcar-api/models/gm"
 	"github.com/paddyquinn/smartcar-api/models/smartcar"
 	"github.com/paddyquinn/smartcar-api/util"
 )
 
 const (
-	domain                   = "http://gmapi.azurewebsites.net/%s"
-	gmStart                  = "START_VEHICLE"
-	gmStop                   = "STOP_VEHICLE"
-	jsonCapitalized          = "JSON"
-	jsonContentType          = "application/json"
-	unidentifiedCommandError = "could not identify engine command"
+	domain          = "http://gmapi.azurewebsites.net/%s"
+	gmStart         = "START_VEHICLE"
+	gmStop          = "STOP_VEHICLE"
+	jsonCapitalized = "JSON"
+	jsonContentType = "application/json"
 
 	// paths
 	getDoorSecurityPath  = "getSecurityStatusService"
@@ -30,6 +29,7 @@ const (
 // DAO is a Data Access Object to the GM API
 type DAO struct{}
 
+// GetBatteryRange retrieves the battery percentage from the GM API and converts it to a smartcar compliant response
 func (dao *DAO) GetBatteryRange(id string) (smartcar.Model, error) {
 	requestBody := &gm.RequestBody{
 		ID:           id,
@@ -45,12 +45,13 @@ func (dao *DAO) GetBatteryRange(id string) (smartcar.Model, error) {
 	gmBatteryRange := &gm.BatteryRange{}
 	err = util.Decode(response.Body, gmBatteryRange)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewDecodeError()
 	}
 
 	return gmBatteryRange.ToSmartcar(), nil
 }
 
+// GetDoorSecurity gets the security status for each door of a GM vehicle
 func (dao *DAO) GetDoorSecurity(id string) (smartcar.Model, error) {
 	requestBody := &gm.RequestBody{
 		ID:           id,
@@ -66,12 +67,13 @@ func (dao *DAO) GetDoorSecurity(id string) (smartcar.Model, error) {
 	gmDoorsResponse := &gm.DoorsResponse{}
 	err = util.Decode(response.Body, gmDoorsResponse)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewDecodeError()
 	}
 
 	return gmDoorsResponse.ToSmartcar(), nil
 }
 
+// GetFuelRange retrieves the fuel percentage from the GM API and converts it to a smartcar compliant response
 func (dao *DAO) GetFuelRange(id string) (smartcar.Model, error) {
 	requestBody := &gm.RequestBody{
 		ID:           id,
@@ -87,7 +89,7 @@ func (dao *DAO) GetFuelRange(id string) (smartcar.Model, error) {
 	gmFuelRange := &gm.FuelRange{}
 	err = util.Decode(response.Body, gmFuelRange)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewDecodeError()
 	}
 
 	return gmFuelRange.ToSmartcar(), nil
@@ -109,12 +111,13 @@ func (dao *DAO) GetVehicle(id string) (smartcar.Model, error) {
 	gmVehicle := &gm.Vehicle{}
 	err = util.Decode(response.Body, gmVehicle)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewDecodeError()
 	}
 
 	return gmVehicle.ToSmartcar(), nil
 }
 
+// PushEngineButton attempts to start or stop the engine of a GM vehicle
 func (dao *DAO) PushEngineButton(id string, cmd int) (*smartcar.Status, error) {
 	var command string
 	switch cmd {
@@ -123,7 +126,7 @@ func (dao *DAO) PushEngineButton(id string, cmd int) (*smartcar.Status, error) {
 	case smartcar.Stop:
 		command = gmStop
 	default:
-		return nil, errors.New(unidentifiedCommandError)
+		return nil, errors.NewUnidentifiedCommandError()
 	}
 
 	requestBody := &gm.RequestBody{
@@ -141,7 +144,7 @@ func (dao *DAO) PushEngineButton(id string, cmd int) (*smartcar.Status, error) {
 	gmStatus := &gm.ActionResult{}
 	err = util.Decode(response.Body, gmStatus)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewDecodeError()
 	}
 
 	return gmStatus.ToSmartcar(), nil
@@ -150,9 +153,14 @@ func (dao *DAO) PushEngineButton(id string, cmd int) (*smartcar.Status, error) {
 func post(path string, requestBody *gm.RequestBody) (*http.Response, error) {
 	jsonBytes, err := json.Marshal(requestBody)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewJSONMarshalError()
 	}
 
 	reader := bytes.NewReader(jsonBytes)
-	return http.Post(fmt.Sprintf(domain, path), jsonContentType, reader)
+	rsp, err := http.Post(fmt.Sprintf(domain, path), jsonContentType, reader)
+	if err != nil {
+		return nil, errors.NewPostError()
+	}
+
+	return rsp, nil
 }
