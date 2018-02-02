@@ -82,6 +82,9 @@ type Status struct {
 
 // IsSuccess just indicates whether or not this is a success status
 func (s *Status) IsSuccess() bool {
+	if s == nil {
+		return false
+	}
 	return s.Value == success
 }
 
