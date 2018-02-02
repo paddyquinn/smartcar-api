@@ -4,22 +4,27 @@ import (
   "bytes"
   "encoding/json"
   "fmt"
-  "io"
   "net/http"
 
   "github.com/paddyquinn/smartcar-api/models/gm"
   "github.com/paddyquinn/smartcar-api/models/smartcar"
+  "errors"
+  "github.com/paddyquinn/smartcar-api/util"
 )
 
 const (
   domain = "http://gmapi.azurewebsites.net/%s"
+  gmStart = "START_VEHICLE"
+  gmStop = "STOP_VEHICLE"
   jsonCapitalized = "JSON"
   jsonContentType = "application/json"
+  unidentifiedCommandError = "could not identify engine command"
 
   // paths
   getDoorSecurityPath = "getSecurityStatusService"
   getRangePath = "getEnergyService"
   getVehiclePath = "getVehicleInfoService"
+  pushEngineButtonPath = "actionEngineService"
 )
 
 // DAO is a Data Access Object to the GM API
@@ -38,7 +43,12 @@ func (dao *DAO) GetBatteryRange(id string) (smartcar.Model, error) {
   defer response.Body.Close()
 
   gmBatteryRange := &gm.BatteryRange{}
-  return decodeResponse(response.Body, gmBatteryRange)
+  err = util.Decode(response.Body, gmBatteryRange)
+  if err != nil {
+    return nil, err
+  }
+
+  return gmBatteryRange.ToSmartcar(), nil
 }
 
 func (dao *DAO) GetDoorSecurity(id string) (smartcar.Model, error) {
@@ -54,7 +64,12 @@ func (dao *DAO) GetDoorSecurity(id string) (smartcar.Model, error) {
   defer response.Body.Close()
 
   gmDoorsResponse := &gm.DoorsResponse{}
-  return decodeResponse(response.Body, gmDoorsResponse)
+  err = util.Decode(response.Body, gmDoorsResponse)
+  if err != nil {
+    return nil, err
+  }
+
+  return gmDoorsResponse.ToSmartcar(), nil
 }
 
 func (dao *DAO) GetFuelRange(id string) (smartcar.Model, error) {
@@ -70,7 +85,12 @@ func (dao *DAO) GetFuelRange(id string) (smartcar.Model, error) {
   defer response.Body.Close()
 
   gmFuelRange := &gm.FuelRange{}
-  return decodeResponse(response.Body, gmFuelRange)
+  err = util.Decode(response.Body, gmFuelRange)
+  if err != nil {
+    return nil, err
+  }
+
+  return gmFuelRange.ToSmartcar(), nil
 }
 
 // GetVehicle makes a call to the GM API for vehicle info by ID
@@ -87,21 +107,44 @@ func (dao *DAO) GetVehicle(id string) (smartcar.Model, error) {
   defer response.Body.Close()
 
   gmVehicle := &gm.Vehicle{}
-  return decodeResponse(response.Body, gmVehicle)
-}
-
-func (dao *DAO) PushEngineButton(id string) (smartcar.Model, error) {
-  return nil, nil
-}
-
-func decodeResponse(body io.ReadCloser, model gm.Model) (smartcar.Model, error){
-  decoder := json.NewDecoder(body)
-  err := decoder.Decode(model)
+  err = util.Decode(response.Body, gmVehicle)
   if err != nil {
     return nil, err
   }
 
-  return model.ToSmartcar(), nil
+  return gmVehicle.ToSmartcar(), nil
+}
+
+func (dao *DAO) PushEngineButton(id string, cmd int) (*smartcar.Status, error) {
+  var command string
+  switch cmd {
+  case smartcar.Start:
+    command = gmStart
+  case smartcar.Stop:
+    command = gmStop
+  default:
+    return nil, errors.New(unidentifiedCommandError)
+  }
+
+  requestBody := &gm.RequestBody{
+    ID: id,
+    Command: command,
+    ResponseType: jsonCapitalized,
+  }
+
+  response, err := post(pushEngineButtonPath, requestBody)
+  if err != nil {
+    return nil, err
+  }
+  defer response.Body.Close()
+
+  gmStatus := &gm.ActionResult{}
+  err = util.Decode(response.Body, gmStatus)
+  if err != nil {
+    return nil, err
+  }
+
+  return gmStatus.ToSmartcar(), nil
 }
 
 func post(path string, requestBody *gm.RequestBody) (*http.Response, error) {

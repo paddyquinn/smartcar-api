@@ -20,6 +20,6 @@ func (mock *Mock) GetVehicle(id string) (smartcar.Model, error) {
   return nil, nil
 }
 
-func (mock *Mock) PushEngineButton(id string) (smartcar.Model, error) {
+func (mock *Mock) PushEngineButton(id string, cmd int) (*smartcar.Status, error) {
   return nil, nil
 }

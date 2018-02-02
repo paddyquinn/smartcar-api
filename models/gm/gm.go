@@ -6,8 +6,30 @@ import (
   "github.com/paddyquinn/smartcar-api/models/smartcar"
 )
 
-type Model interface {
-  ToSmartcar() smartcar.Model
+const (
+  err = "error"
+  executed = "EXECUTED"
+  success = "success"
+)
+
+type ActionResult struct {
+  Status *Status `json:"actionResult"`
+}
+
+func (ar *ActionResult) ToSmartcar() *smartcar.Status {
+  arStatus := ar.Status
+  if ar.Status == nil {
+    return nil
+  }
+
+  status := err
+  if arStatus.Value == executed {
+    status = success
+  }
+
+  return &smartcar.Status{
+    Value: status,
+  }
 }
 
 type BatteryLevelData struct {
@@ -18,7 +40,7 @@ type BatteryRange struct {
   Data *BatteryLevelData `json:"data"`
 }
 
-func (batteryRange *BatteryRange) ToSmartcar() smartcar.Model {
+func (batteryRange *BatteryRange) ToSmartcar() *smartcar.Range {
   data := batteryRange.Data
   if data == nil {
     return nil
@@ -39,7 +61,7 @@ type DoorsResponse struct {
   Data *DoorsData `json:"data"`
 }
 
-func (doorsResponse *DoorsResponse) ToSmartcar() smartcar.Model {
+func (doorsResponse *DoorsResponse) ToSmartcar() smartcar.Doors {
   data := doorsResponse.Data
   if data == nil {
     return nil
@@ -66,7 +88,7 @@ type FuelRange struct {
   Data *FuelLevelData `json:"data"`
 }
 
-func (fuelRange *FuelRange) ToSmartcar() smartcar.Model {
+func (fuelRange *FuelRange) ToSmartcar() *smartcar.Range {
   data := fuelRange.Data
   if data == nil {
     return nil
@@ -90,6 +112,10 @@ type RequestBody struct {
   ResponseType string `json:"responseType"`
 }
 
+type Status struct {
+  Value string `json:"status"`
+}
+
 type Value struct {
   Value string `json:"value"`
 }
@@ -102,7 +128,7 @@ type Vehicle struct {
   Data *VehicleData `json:"data"`
 }
 
-func (vehicle *Vehicle) ToSmartcar() smartcar.Model {
+func (vehicle *Vehicle) ToSmartcar() *smartcar.Vehicle {
   data := vehicle.Data
   if data == nil {
     return nil

@@ -7,5 +7,5 @@ type Interface interface {
   GetDoorSecurity(id string) (smartcar.Model, error)
   GetFuelRange(id string) (smartcar.Model, error)
   GetVehicle(id string) (smartcar.Model, error)
-  PushEngineButton(id string) (smartcar.Model, error)
+  PushEngineButton(id string, cmd int) (*smartcar.Status, error)
 }
