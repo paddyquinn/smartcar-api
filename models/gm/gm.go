@@ -135,7 +135,7 @@ type Value struct {
 	Value string `json:"value"`
 }
 
-// Values is an array of information about the doors of e vehicle
+// Values is an array of information about the doors of a vehicle
 type Values struct {
 	Values []*LocationLocked `json:"values"`
 }
