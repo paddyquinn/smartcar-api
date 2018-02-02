@@ -1,5 +1,7 @@
 package smartcar
 
+type Model interface {}
+
 type Door struct {
   Location string `json:"location"`
   Locked bool `json:"locked"`
@@ -8,7 +10,7 @@ type Door struct {
 type Doors []*Door
 
 type Range struct {
-  Percent int `json:"percent"`
+  Percent float64 `json:"percent"`
 }
 
 type Status struct {
