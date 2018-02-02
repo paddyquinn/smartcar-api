@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "mrz/kicZiUaHxkyfvC/DyQcr8Do=",
+			"path": "github.com/davecgh/go-spew/spew",
+			"revision": "db69d09d2c587e9b9677f991dfcab1fc24d9086e",
+			"revisionTime": "2018-01-21T16:36:22Z"
+		},
+		{
 			"checksumSHA1": "QeKwBtN2df+j+4stw3bQJ6yO4EY=",
 			"path": "github.com/gin-contrib/sse",
 			"revision": "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae",
@@ -63,6 +69,12 @@
 			"revisionTime": "2017-11-07T05:05:31Z"
 		},
 		{
+			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
+			"path": "github.com/pmezard/go-difflib/difflib",
+			"revision": "792786c7400a136282c1664665ae0a8db921c6c2",
+			"revisionTime": "2016-01-10T10:55:54Z"
+		},
+		{
 			"checksumSHA1": "ozRFnFdTG0IjkTE0RkZn71XO4gw=",
 			"path": "github.com/smartystreets/assertions",
 			"revision": "0b37b35ec7434b77e77a4bb29b79677cced992ea",
@@ -97,6 +109,24 @@
 			"path": "github.com/smartystreets/goconvey/convey/reporting",
 			"revision": "e5b2b7c9111590d019a696c7800593f666e1a7f4",
 			"revisionTime": "2017-08-25T22:14:26Z"
+		},
+		{
+			"checksumSHA1": "6thzskcj6XrMO5kW6GlRiuTDYjU=",
+			"path": "github.com/stretchr/objx",
+			"revision": "8a3f7159479fbc75b30357fbc48f380b7320f08e",
+			"revisionTime": "2018-01-29T17:20:03Z"
+		},
+		{
+			"checksumSHA1": "pbq5LYckA7/rqe03l9MtXDekmRg=",
+			"path": "github.com/stretchr/testify/assert",
+			"revision": "12b6f73e6084dad08a7c6e575284b177ecafbc71",
+			"revisionTime": "2018-01-31T22:23:50Z"
+		},
+		{
+			"checksumSHA1": "GxKV+q3Z/H3VsIiZ/dG3u88rnbc=",
+			"path": "github.com/stretchr/testify/mock",
+			"revision": "12b6f73e6084dad08a7c6e575284b177ecafbc71",
+			"revisionTime": "2018-01-31T22:23:50Z"
 		},
 		{
 			"checksumSHA1": "IraMqoP97RLnA9sNw4Kw/g1oJrA=",

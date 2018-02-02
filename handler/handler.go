@@ -11,6 +11,11 @@ import (
 
 const id = "id"
 
+// ErrorResponse is a JSON compliant way to send back error responses
+type ErrorResponse struct {
+	Message string `json:"error"`
+}
+
 // Handler is a struct that handles requests from our web server
 type Handler struct {
 	DAO dao.Interface
@@ -40,7 +45,7 @@ func (hdlr *Handler) GetVehicle(c *gin.Context) {
 func (hdlr *Handler) PushEngineButton(c *gin.Context) {
 	engineRequest, err := smartcar.NewEngineRequest(c.Request.Body)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, &ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -55,7 +60,7 @@ func (hdlr *Handler) PushEngineButton(c *gin.Context) {
 			statusCode = http.StatusBadRequest
 		}
 
-		c.JSON(statusCode, err)
+		c.JSON(statusCode, &ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -67,11 +72,26 @@ func (hdlr *Handler) PushEngineButton(c *gin.Context) {
 	c.JSON(statusCode, status)
 }
 
+// SetUpRouter sets up a new router
+func (hdlr *Handler) SetUpRouter() *gin.Engine {
+	router := gin.Default()
+
+	vehicles := router.Group("/vehicles/:id")
+	{
+		vehicles.GET("", hdlr.GetVehicle)
+		vehicles.GET("/doors", hdlr.GetDoorSecurity)
+		vehicles.GET("/fuel", hdlr.GetFuelRange)
+		vehicles.GET("/battery", hdlr.GetBatteryRange)
+		vehicles.POST("/engine", hdlr.PushEngineButton)
+	}
+
+	return router
+}
+
 func (hdlr *Handler) handleGet(c *gin.Context, daoFunc func(string) (smartcar.Model, error)) {
 	model, err := daoFunc(c.Param(id))
 	if err != nil {
-		// TODO: rethink this with sane error codes
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, &ErrorResponse{Message: err.Error()})
 		return
 	}
 
